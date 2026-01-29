@@ -75,7 +75,7 @@ pipeline {
             steps {
                 echo "==> Deploy to VM2"
                 sh '''
-                  "
+                    ssh -o StrictHostKeyChecking=no mayo@192.168.56.129 "
                     docker pull ${REGISTRY}/${IMAGE_NAME}:${TAG} &&
                     docker stop app || true &&
                     docker rm app || true &&
@@ -89,7 +89,7 @@ pipeline {
             steps {
                 echo "==> Deploy to VM3"
                 sh '''
-                  ssh -o StrictHostKeyChecking=no mayo@app-server-2 "
+                  ssh -o StrictHostKeyChecking=no mayo@192.168.56.130 "
                     docker pull ${REGISTRY}/${IMAGE_NAME}:${TAG} &&
                     docker stop app || true &&
                     docker rm app || true &&
