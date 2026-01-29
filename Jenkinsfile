@@ -75,7 +75,7 @@ pipeline {
             steps {
                 echo "==> Deploy to VM2"
                 sh '''
-                  ssh -o StrictHostKeyChecking=no mayo@app-server-1 "
+                  "
                     docker pull ${REGISTRY}/${IMAGE_NAME}:${TAG} &&
                     docker stop app || true &&
                     docker rm app || true &&
