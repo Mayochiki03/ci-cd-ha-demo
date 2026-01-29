@@ -42,24 +42,24 @@ pipeline {
             }
         }
 
-    stage('Docker Login to Nexus') {
-        steps {
-            echo "==> Docker login to Nexus"
-            withCredentials([
-                usernamePassword(
-                    credentialsId: 'nexus-admin',
-                    usernameVariable: 'NEXUS_USER',
-                    passwordVariable: 'NEXUS_PASS'
-                )
-            ]) {
-                sh '''
-                  echo "$NEXUS_PASS" | docker login ${REGISTRY} \
-                    -u "$NEXUS_USER" \
-                    --password-stdin
-                '''
+        stage('Docker Login to Nexus') {
+            steps {
+                echo "==> Docker login to Nexus"
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'nexus-admin',
+                        usernameVariable: 'NEXUS_USER',
+                        passwordVariable: 'NEXUS_PASS'
+                    )
+                ]) {
+                    sh '''
+                      echo "$NEXUS_PASS" | docker login ${REGISTRY} \
+                        -u "$NEXUS_USER" \
+                        --password-stdin
+                    '''
+                }
             }
         }
-    }
 
 
         stage('Push Image to Nexus') {
