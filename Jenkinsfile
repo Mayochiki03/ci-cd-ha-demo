@@ -39,15 +39,16 @@ pipeline {
                     sh '''
                       docker run --rm \
                         -e SONAR_HOST_URL=http://192.168.56.128:9000 \
-                        -e SONAR_LOGIN=$SONAR_TOKEN \
                         -v "$PWD:/usr/src" \
                         sonarsource/sonar-scanner-cli \
                         -Dsonar.projectKey=ci-cd-ha-demo \
-                        -Dsonar.sources=.
+                        -Dsonar.sources=. \
+                        -Dsonar.login=$SONAR_TOKEN
                     '''
                 }
             }
         }
+
 
 
         stage('Tag Image') {
