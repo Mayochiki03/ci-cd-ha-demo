@@ -49,6 +49,15 @@ pipeline {
             }
         }
 
+        
+        stage('Quality Gate') {
+            steps {
+                echo "==> Waiting for SonarQube Quality Gate"
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
 
 
         stage('Tag Image') {
