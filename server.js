@@ -6,7 +6,6 @@ const os = require("os");
 const PORT = 3000;
 const HOST = "0.0.0.0";
 
-// serve static files
 function serveStatic(res, filePath, contentType) {
   fs.readFile(filePath, (err, data) => {
     if (err) {
@@ -20,7 +19,13 @@ function serveStatic(res, filePath, contentType) {
 }
 
 const server = http.createServer((req, res) => {
-  // API สำหรับ load balance test
+  // health check 
+  if (req.url === "/health") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    return res.end(JSON.stringify({ status: "ok" }));
+  }
+
+  // API test load balance
   if (req.url === "/api/whoami") {
     res.writeHead(200, { "Content-Type": "application/json" });
     return res.end(
@@ -31,17 +36,28 @@ const server = http.createServer((req, res) => {
     );
   }
 
-  // routing static
   if (req.url === "/" || req.url === "/index.html") {
-    return serveStatic(res, "./public/index.html", "text/html");
+    return serveStatic(
+      res,
+      path.join(__dirname, "public/index.html"),
+      "text/html",
+    );
   }
 
   if (req.url === "/style.css") {
-    return serveStatic(res, "./public/style.css", "text/css");
+    return serveStatic(
+      res,
+      path.join(__dirname, "public/style.css"),
+      "text/css",
+    );
   }
 
   if (req.url === "/app.js") {
-    return serveStatic(res, "./public/app.js", "application/javascript");
+    return serveStatic(
+      res,
+      path.join(__dirname, "public/app.js"),
+      "application/javascript",
+    );
   }
 
   res.writeHead(404);
