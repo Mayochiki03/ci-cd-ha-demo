@@ -100,6 +100,19 @@ pipeline {
             }
         }
 
+        stage('Save Previous Version') {
+            steps {
+                echo "==> Save previous running image"
+                sh '''
+                ssh -i /var/jenkins_home/.ssh/id_ed25519 -o StrictHostKeyChecking=no mayo@192.168.56.129 \
+                    "docker inspect --format='{{.Config.Image}}' app 2>/dev/null || true" > prev_vm2.txt
+
+                ssh -i /var/jenkins_home/.ssh/id_ed25519 -o StrictHostKeyChecking=no mayo@192.168.56.130 \
+                    "docker inspect --format='{{.Config.Image}}' app 2>/dev/null || true" > prev_vm3.txt
+                '''
+            }
+        }
+
         stage('Deploy to VM2') {
             steps {
                 echo "==> Deploy to VM2"
@@ -162,8 +175,31 @@ pipeline {
         success {
             echo "Pipeline SUCCESS: CI/CD + HA deploy completed"
         }
+
         failure {
-            echo "Pipeline FAILED: Check logs"
+            echo "DEPLOY FAILED → ROLLBACK to previous version"
+
+            sh '''
+            PREV_VM2=$(cat prev_vm2.txt || true)
+            PREV_VM3=$(cat prev_vm3.txt || true)
+
+            if [ ! -z "$PREV_VM2" ]; then
+                ssh -i /var/jenkins_home/.ssh/id_ed25519 -o StrictHostKeyChecking=no mayo@192.168.56.129 "
+                docker stop app || true &&
+                docker rm app || true &&
+                docker run -d --name app -p 3000:3000 $PREV_VM2
+                "
+            fi
+
+            if [ ! -z "$PREV_VM3" ]; then
+                ssh -i /var/jenkins_home/.ssh/id_ed25519 -o StrictHostKeyChecking=no mayo@192.168.56.130 "
+                docker stop app || true &&
+                docker rm app || true &&
+                docker run -d --name app -p 3000:3000 $PREV_VM3
+                "
+            fi
+            '''
         }
     }
+
 }
