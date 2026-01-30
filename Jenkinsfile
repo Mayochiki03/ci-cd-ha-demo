@@ -31,17 +31,12 @@ pipeline {
             }
         }
 
-
         stage('SonarQube Scan') {
             steps {
-                echo "==> SonarQube scan"
                 withSonarQubeEnv('sonarqube') {
                     withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                         sh '''
-                        docker run --rm \
-                            -e SONAR_HOST_URL=$SONAR_HOST_URL \
-                            -v "$PWD:/usr/src" \
-                            sonarsource/sonar-scanner-cli \
+                        sonar-scanner \
                             -Dsonar.projectKey=ci-cd-ha-demo \
                             -Dsonar.sources=. \
                             -Dsonar.login=$SONAR_TOKEN
@@ -51,16 +46,13 @@ pipeline {
             }
         }
 
-        
         stage('Quality Gate') {
             steps {
-                echo "==> Waiting for SonarQube Quality Gate"
                 timeout(time: 2, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
         }
-
 
         stage('Tag Image') {
             steps {
