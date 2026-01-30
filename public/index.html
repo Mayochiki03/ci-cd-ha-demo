@@ -2,23 +2,24 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>CI/CD HA Demo</title>
-    <link rel="stylesheet" href="style.css" />
+    <title>CI/CD + Load Balance Demo</title>
+    <link rel="stylesheet" href="/style.css" />
   </head>
+
   <body>
     <div class="card">
-      <h1>🚀 CI/CD High Availability Demo</h1>
-      <p class="status">System Status: <span class="ok">ONLINE</span></p>
-      <p class="info">Response from server:</p>
-      <p class="server" id="server">loading...</p>
+      <h1>CI/CD + Load Balance Demo</h1>
+
+      <div class="status">Status: <span class="ok">RUNNING</span></div>
+
+      <button onclick="testLoadBalance()">Test Load Balance x20</button>
+
+      <pre id="result">
+        Click the button to test load balancing...
+    </pre
+      >
     </div>
 
-    <script>
-      fetch("/api/server")
-        .then((res) => res.text())
-        .then((data) => {
-          document.getElementById("server").innerText = data;
-        });
-    </script>
+    <script src="/app.js"></script>
   </body>
 </html>

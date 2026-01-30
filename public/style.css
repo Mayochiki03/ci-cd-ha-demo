@@ -12,18 +12,14 @@ body {
   background: white;
   padding: 30px 40px;
   border-radius: 12px;
-  width: 400px;
+  width: 420px;
   text-align: center;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
-h1 {
-  margin-bottom: 10px;
-}
-
 .status {
-  font-size: 18px;
   margin: 10px 0;
+  font-size: 18px;
 }
 
 .ok {
@@ -31,14 +27,28 @@ h1 {
   font-weight: bold;
 }
 
-.info {
+button {
   margin-top: 20px;
-  color: #666;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  background: #667eea;
+  color: white;
+  cursor: pointer;
 }
 
-.server {
-  margin-top: 10px;
-  font-size: 20px;
-  font-weight: bold;
-  color: #333;
+button:hover {
+  background: #5a67d8;
+}
+
+pre {
+  margin-top: 20px;
+  text-align: left;
+  background: #f7f7f7;
+  padding: 10px;
+  border-radius: 6px;
+  height: 200px;
+  overflow-y: auto;
+  font-size: 14px;
 }
