@@ -121,16 +121,6 @@ pipeline {
 
 
 
-        stage('Reload Nginx') {
-            steps {
-                echo "==> Reload Nginx"
-                sh '''
-                  sudo systemctl reload nginx
-                '''
-            }
-        }
-    }
-
     post {
         success {
             echo "Pipeline SUCCESS: CI/CD + HA deploy completed"
