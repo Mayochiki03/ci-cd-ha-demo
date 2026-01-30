@@ -31,18 +31,24 @@ pipeline {
             }
         }
 
+        
         stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('sonarqube') {
                     withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                         script {
                             def scannerHome = tool 'sonar-scanner'
-                            sh """
-                                ${scannerHome}/bin/sonar-scanner \
-                                -Dsonar.projectKey=ci-cd-ha-demo \
-                                -Dsonar.sources=. \
-                                -Dsonar.login=$SONAR_TOKEN
-                            """
+                            def nodeHome = tool 'node18'
+
+                            withEnv(["PATH+NODE=${nodeHome}/bin"]) {
+                                sh """
+                                    node -v
+                                    ${scannerHome}/bin/sonar-scanner \
+                                    -Dsonar.projectKey=ci-cd-ha-demo \
+                                    -Dsonar.sources=. \
+                                    -Dsonar.login=$SONAR_TOKEN
+                                """
+                            }
                         }
                     }
                 }
