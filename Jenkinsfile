@@ -31,6 +31,25 @@ pipeline {
             }
         }
 
+
+        stage('SonarQube Scan') {
+            steps {
+                echo "==> SonarQube scan"
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    sh '''
+                      docker run --rm \
+                        -e SONAR_HOST_URL=http://192.168.56.128:9000 \
+                        -e SONAR_LOGIN=$SONAR_TOKEN \
+                        -v "$PWD:/usr/src" \
+                        sonarsource/sonar-scanner-cli \
+                        -Dsonar.projectKey=ci-cd-ha-demo \
+                        -Dsonar.sources=.
+                    '''
+                }
+            }
+        }
+
+
         stage('Tag Image') {
             steps {
                 echo "==> Tag image for Nexus"
