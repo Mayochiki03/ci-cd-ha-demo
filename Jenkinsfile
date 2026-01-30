@@ -35,12 +35,15 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonarqube') {
                     withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        sh '''
-                        sonar-scanner \
-                            -Dsonar.projectKey=ci-cd-ha-demo \
-                            -Dsonar.sources=. \
-                            -Dsonar.login=$SONAR_TOKEN
-                        '''
+                        script {
+                            def scannerHome = tool 'sonar-scanner'
+                            sh """
+                                ${scannerHome}/bin/sonar-scanner \
+                                -Dsonar.projectKey=ci-cd-ha-demo \
+                                -Dsonar.sources=. \
+                                -Dsonar.login=$SONAR_TOKEN
+                            """
+                        }
                     }
                 }
             }
