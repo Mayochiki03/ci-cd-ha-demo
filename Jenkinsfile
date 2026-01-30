@@ -8,9 +8,7 @@ pipeline {
     environment {
         REGISTRY = "192.168.56.128:50000"
         IMAGE_NAME = "app"
-        TAG = "${BUILD_NUMBER}-${GIT_COMMIT.take(7)}"
-        NEXUS_USER = "admin"
-        NEXUS_PASSWORD = "password"
+        TAG = "${BUILD_NUMBER}"
     }
 
     stages {
@@ -61,7 +59,6 @@ pipeline {
             }
         }
 
-
         stage('Push Image to Nexus') {
             steps {
                 echo "==> Push image to Nexus"
@@ -94,8 +91,6 @@ pipeline {
             }
         }
 
-
-
         stage('Deploy to VM3') {
             steps {
                 echo "==> Deploy to VM3"
@@ -119,15 +114,16 @@ pipeline {
             }
         }
         stage('Verify Deployment') {
-            steps {
-                echo "==> Verify application health"
-        
-                sh '''
-                  curl -f http://192.168.56.129:3000 || exit 1
-                  curl -f http://192.168.56.130:3000 || exit 1
-                '''
-            }
+        steps {
+            echo "==> Verify application health"
+    
+            sh '''
+              curl -f http://192.168.56.129:3000 || exit 1
+              curl -f http://192.168.56.130:3000 || exit 1
+            '''
         }
+    }
+    }
 
 
 
