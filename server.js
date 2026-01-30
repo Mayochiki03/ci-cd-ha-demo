@@ -6,7 +6,6 @@ const HOST = "0.0.0.0";
 const server = http.createServer((req, res) => {
   res.writeHead(200, { "Content-Type": "text/plain" });
 
-  //message = "Hello from BUG version\n"; 
   const message = "Hello from FIXED version\n";
 
   res.end(message);
