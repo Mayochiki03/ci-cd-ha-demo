@@ -75,7 +75,9 @@ pipeline {
             steps {
                 echo "==> Deploy to VM2"
                 sh '''
-                    ssh -o StrictHostKeyChecking=no mayo@192.168.56.129 "
+                  ssh -i /var/jenkins_home/.ssh/id_ed25519 \
+                      -o StrictHostKeyChecking=no \
+                      mayo@192.168.56.129 "
                     docker pull ${REGISTRY}/${IMAGE_NAME}:${TAG} &&
                     docker stop app || true &&
                     docker rm app || true &&
@@ -85,11 +87,14 @@ pipeline {
             }
         }
 
+
         stage('Deploy to VM3') {
             steps {
                 echo "==> Deploy to VM3"
                 sh '''
-                  ssh -o StrictHostKeyChecking=no mayo@192.168.56.130 "
+                  ssh -i /var/jenkins_home/.ssh/id_ed25519 \
+                      -o StrictHostKeyChecking=no \
+                      mayo@192.168.56.130 "
                     docker pull ${REGISTRY}/${IMAGE_NAME}:${TAG} &&
                     docker stop app || true &&
                     docker rm app || true &&
@@ -98,6 +103,7 @@ pipeline {
                 '''
             }
         }
+
 
         stage('Reload Nginx') {
             steps {
