@@ -35,16 +35,18 @@ pipeline {
         stage('SonarQube Scan') {
             steps {
                 echo "==> SonarQube scan"
-                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    sh '''
-                      docker run --rm \
-                        -e SONAR_HOST_URL=http://192.168.56.128:9000 \
-                        -v "$PWD:/usr/src" \
-                        sonarsource/sonar-scanner-cli \
-                        -Dsonar.projectKey=ci-cd-ha-demo \
-                        -Dsonar.sources=. \
-                        -Dsonar.login=$SONAR_TOKEN
-                    '''
+                withSonarQubeEnv('sonarqube') {
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                        docker run --rm \
+                            -e SONAR_HOST_URL=$SONAR_HOST_URL \
+                            -v "$PWD:/usr/src" \
+                            sonarsource/sonar-scanner-cli \
+                            -Dsonar.projectKey=ci-cd-ha-demo \
+                            -Dsonar.sources=. \
+                            -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
                 }
             }
         }
