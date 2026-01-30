@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CI/CD HA Demo</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="card">
+      <h1>🚀 CI/CD High Availability Demo</h1>
+      <p class="status">System Status: <span class="ok">ONLINE</span></p>
+      <p class="info">Response from server:</p>
+      <p class="server" id="server">loading...</p>
+    </div>
+
+    <script>
+      fetch("/api/server")
+        .then((res) => res.text())
+        .then((data) => {
+          document.getElementById("server").innerText = data;
+        });
+    </script>
+  </body>
+</html>
