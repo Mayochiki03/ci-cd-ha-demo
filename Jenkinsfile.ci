@@ -67,6 +67,7 @@ pipeline {
 
     post {
         success {
+            echo "==> Trigger CD pipeline"
             build job: 'cd-build',
             parameters: [string(name: 'VERSION', value: "latest")]
         }
