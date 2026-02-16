@@ -115,49 +115,47 @@ pipeline {
 
         stage('Deploy to VM2') {
             steps {
-                echo "==> Deploy to VM2"
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'nexus-admin',
-                        usernameVariable: 'NEXUS_USER',
-                        passwordVariable: 'NEXUS_PASS'
-                    )
-                ]) {
-                    sh '''
-                      ssh -i /var/jenkins_home/.ssh/id_ed25519 -o StrictHostKeyChecking=no mayo@192.168.56.129 "
-                        echo '$NEXUS_PASS' | docker login ${REGISTRY} -u '$NEXUS_USER' --password-stdin &&
-                        docker pull ${REGISTRY}/${IMAGE_NAME}:${TAG} &&
-                        docker stop app || true &&
-                        docker rm app || true &&
-                        docker run -d --name app -p 3000:3000 ${REGISTRY}/${IMAGE_NAME}:${TAG}
-                      "
-                    '''
-                }
+                echo "==> Rolling deploy to VM2"
+                sh '''
+                ssh -i /var/jenkins_home/.ssh/id_ed25519 -o StrictHostKeyChecking=no mayo@192.168.56.129 "
+                    docker pull ${REGISTRY}/${IMAGE_NAME}:${TAG} &&
+                    docker stop app || true &&
+                    docker rm app || true &&
+                    docker run -d --name app -p 3000:3000 ${REGISTRY}/${IMAGE_NAME}:${TAG}
+                "
+                '''
+
+                echo "==> Verify VM2"
+                sh '''
+                sleep 5
+                curl -f http://192.168.56.129:3000 || exit 1
+                '''
             }
         }
 
+        
         stage('Deploy to VM3') {
             steps {
-                echo "==> Deploy to VM3"
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'nexus-admin',
-                        usernameVariable: 'NEXUS_USER',
-                        passwordVariable: 'NEXUS_PASS'
-                    )
-                ]) {
-                    sh '''
-                      ssh -i /var/jenkins_home/.ssh/id_ed25519 -o StrictHostKeyChecking=no mayo@192.168.56.130 "
-                        echo '$NEXUS_PASS' | docker login ${REGISTRY} -u '$NEXUS_USER' --password-stdin &&
-                        docker pull ${REGISTRY}/${IMAGE_NAME}:${TAG} &&
-                        docker stop app || true &&
-                        docker rm app || true &&
-                        docker run -d --name app -p 3000:3000 ${REGISTRY}/${IMAGE_NAME}:${TAG}
-                      "
-                    '''
-                }
+                echo "==> Rolling deploy to VM3"
+                sh '''
+                ssh -i /var/jenkins_home/.ssh/id_ed25519 -o StrictHostKeyChecking=no mayo@192.168.56.130 "
+                    docker pull ${REGISTRY}/${IMAGE_NAME}:${TAG} &&
+                    docker stop app || true &&
+                    docker rm app || true &&
+                    docker run -d --name app -p 3000:3000 ${REGISTRY}/${IMAGE_NAME}:${TAG}
+                "
+                '''
+
+                echo "==> Verify VM3"
+                sh '''
+                sleep 5
+                curl -f http://192.168.56.130:3000 || exit 1
+                '''
             }
         }
+
+
+
         stage('Verify Deployment') {
         steps {
             echo "==> Verify application health"
