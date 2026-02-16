@@ -67,7 +67,8 @@ pipeline {
 
     post {
         success {
-            echo "CI SUCCESS → Image pushed to Nexus"
+            build job: 'cd-build',
+            parameters: [string(name: 'VERSION', value: "latest")]
         }
     }
 }
