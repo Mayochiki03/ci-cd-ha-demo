@@ -8,6 +8,7 @@ pipeline {
     environment {
         REGISTRY = "192.168.56.128:50000"
         IMAGE_NAME = "app"
+        TAG = "latest"
     }
 
     stages {
