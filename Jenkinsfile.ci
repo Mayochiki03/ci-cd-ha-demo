@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+
+    environment {
+        REGISTRY = "192.168.56.128:50000"
+        IMAGE_NAME = "app"
+        TAG = "${BUILD_NUMBER}"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                deleteDir()
+                git branch: 'main',
+                    url: 'https://github.com/Mayochiki03/ci-cd-ha-demo.git'
+            }
+        }
+
+        stage('Build Docker') {
+            steps {
+                sh 'docker build -t ${IMAGE_NAME}:${TAG} .'
+            }
+        }
+
+        stage('SonarQube Scan') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                        /var/jenkins_home/tools/hudson.plugins.sonar.SonarRunnerInstallation/sonar-scanner/bin/sonar-scanner \
+                        -Dsonar.projectKey=ci-cd-ha-demo \
+                        -Dsonar.sources=. \
+                        -Dsonar.token=$SONAR_TOKEN
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Tag & Push') {
+            steps {
+                sh '''
+                docker tag ${IMAGE_NAME}:${TAG} ${REGISTRY}/${IMAGE_NAME}:${TAG}
+                echo "Login Nexus"
+                docker login ${REGISTRY} -u admin -p admin123
+                docker push ${REGISTRY}/${IMAGE_NAME}:${TAG}
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "CI SUCCESS → Image pushed to Nexus"
+        }
+    }
+}
