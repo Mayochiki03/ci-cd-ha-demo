@@ -27,12 +27,18 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonarqube') {
                     withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        sh '''
-                        /var/jenkins_home/tools/hudson.plugins.sonar.SonarRunnerInstallation/sonar-scanner/bin/sonar-scanner \
-                        -Dsonar.projectKey=ci-cd-ha-demo \
-                        -Dsonar.sources=. \
-                        -Dsonar.token=$SONAR_TOKEN
-                        '''
+                        script {
+                            def nodeHome = tool 'node18'
+                            withEnv(["PATH+NODE=${nodeHome}/bin"]) {
+                                sh '''
+                                node -v
+                                /var/jenkins_home/tools/hudson.plugins.sonar.SonarRunnerInstallation/sonar-scanner/bin/sonar-scanner \
+                                -Dsonar.projectKey=ci-cd-ha-demo \
+                                -Dsonar.sources=. \
+                                -Dsonar.token=$SONAR_TOKEN
+                                '''
+                            }
+                        }
                     }
                 }
             }
@@ -40,12 +46,19 @@ pipeline {
 
         stage('Tag & Push') {
             steps {
-                sh '''
-                docker tag ${IMAGE_NAME}:${TAG} ${REGISTRY}/${IMAGE_NAME}:${TAG}
-                echo "Login Nexus"
-                docker login ${REGISTRY} -u admin -p admin123
-                docker push ${REGISTRY}/${IMAGE_NAME}:${TAG}
-                '''
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'nexus-admin',
+                        usernameVariable: 'NEXUS_USER',
+                        passwordVariable: 'NEXUS_PASS'
+                    )
+                ]) {
+                    sh '''
+                    docker tag ${IMAGE_NAME}:${TAG} ${REGISTRY}/${IMAGE_NAME}:${TAG}
+                    echo "$NEXUS_PASS" | docker login ${REGISTRY} -u "$NEXUS_USER" --password-stdin
+                    docker push ${REGISTRY}/${IMAGE_NAME}:${TAG}
+                    '''
+                }
             }
         }
     }
